@@ -1,25 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { api } from "./api";
+import logoHabitatCebrace from "./assets/logo-habitat-cebrace.png";
 
 const CSS = `
   :root{
-    --dark:#1A1A1A; --card:#232323; --card2:#2A2A2A; --gold:#B5966A; --gold-dim:#4A3F30;
-    --text:#F5F2ED; --text-dim:#A8A29A; --text-faint:#6E6A63; --red:#C0564F; --green:#7FA66B; --line:#333333;
+    --dark:#FFFFFF; --card:#F7F6F3; --card2:#EFEDE7; --gold:#F5811E; --gold-dim:#F7973D;
+    --text:#1A1A1A; --text-dim:#6B6660; --text-faint:#8A8377; --red:#ED1450; --green:#7FA66B; --line:#E3E0D9;
   }
   *{ box-sizing:border-box; }
   html,body,#root{ margin:0; padding:0; height:100%; background:var(--dark); }
-  .nera-app{ font-family:'Carlito','Calibri',sans-serif; color:var(--text); min-height:100vh; }
-  .serif{ font-family:'Caladea','Cambria',serif; }
+  .app-shell{ font-family:Arial,Helvetica,sans-serif; color:var(--text); min-height:100vh; }
+  .serif{ font-family:Arial,Helvetica,sans-serif; }
   .topbar{ display:flex; justify-content:space-between; align-items:center; padding:22px 48px; border-bottom:1px solid var(--line); }
   .brand{ display:flex; align-items:center; gap:12px; }
-  .brand .mark{ width:34px; height:34px; border:1.5px solid var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--gold); font-weight:700; font-size:14px; }
-  .brand .name{ font-size:15px; letter-spacing:0.14em; text-transform:uppercase; font-weight:700; }
+  .brand .mark{ height:34px; width:auto; display:block; }
+  .brand .name{ font-size:15px; letter-spacing:0.02em; font-weight:700; color:var(--gold); }
   .login-wrap{ display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:80vh; padding:60px; text-align:center; }
   .kicker{ font-size:13px; letter-spacing:0.16em; text-transform:uppercase; color:var(--gold); margin-bottom:18px; }
   .login-title{ font-size:36px; font-weight:700; margin:0 0 16px; max-width:720px; line-height:1.25; }
   .login-card{ width:420px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:36px; text-align:left; }
   .flabel{ font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-dim); margin-bottom:8px; display:block; }
-  .finput{ width:100%; background:#141414; border:1px solid var(--line); border-radius:6px; padding:14px 15px; color:var(--text); font-size:15px; margin-bottom:18px; font-family:inherit; }
+  .finput{ width:100%; background:#F0EEE8; border:1px solid var(--line); border-radius:6px; padding:14px 15px; color:var(--text); font-size:15px; margin-bottom:18px; font-family:inherit; }
   .fbtn{ width:100%; background:var(--gold); color:#1A1A1A; border:none; border-radius:6px; padding:15px; font-weight:700; font-size:15px; cursor:pointer; }
   .fbtn:disabled{ opacity:0.5; cursor:not-allowed; }
   .fnote{ margin-top:18px; padding-top:16px; border-top:1px solid var(--line); font-size:12.5px; color:var(--text-faint); line-height:1.6; }
@@ -27,7 +28,7 @@ const CSS = `
   .ok-msg{ color:var(--green); font-size:13px; margin-top:10px; }
   .nav{ display:flex; gap:4px; padding:14px 40px; border-bottom:1px solid var(--line); flex-wrap:wrap; }
   .navbtn{ font-size:13.5px; padding:11px 18px; border-radius:6px; color:var(--text-dim); background:transparent; border:none; cursor:pointer; }
-  .navbtn.active{ background:var(--gold-dim); color:var(--gold); font-weight:700; }
+  .navbtn.active{ background:rgba(245,129,30,0.12); color:var(--gold); font-weight:700; }
   .content{ padding:36px 48px; }
   .h1{ font-size:24px; font-weight:700; margin:0 0 6px; }
   .h2{ font-size:14px; color:var(--text-dim); margin:0 0 20px; }
@@ -37,11 +38,11 @@ const CSS = `
   table.tbl td{ padding:15px 14px; border-bottom:1px solid var(--line); font-size:14px; }
   .pill{ font-size:11px; padding:5px 13px; border-radius:20px; text-transform:uppercase; letter-spacing:0.03em; display:inline-block; }
   .pill.ativa{ background:rgba(127,166,107,0.18); color:var(--green); }
-  .pill.agendada{ background:rgba(181,150,106,0.2); color:var(--gold); }
-  .pill.encerrada{ background:rgba(255,255,255,0.08); color:var(--text-faint); }
-  .pill.owner{ background:rgba(181,150,106,0.22); color:var(--gold); }
-  .pill.operador{ background:rgba(255,255,255,0.08); color:var(--text-dim); }
-  .pill.pendente{ background:rgba(181,150,106,0.15); color:var(--gold); }
+  .pill.agendada{ background:rgba(245,129,30,0.2); color:var(--gold); }
+  .pill.encerrada{ background:rgba(0,0,0,0.05); color:var(--text-faint); }
+  .pill.owner{ background:rgba(245,129,30,0.22); color:var(--gold); }
+  .pill.operador{ background:rgba(0,0,0,0.05); color:var(--text-dim); }
+  .pill.pendente{ background:rgba(245,129,30,0.15); color:var(--gold); }
   .btn{ background:var(--gold); color:#1A1A1A; border:none; border-radius:6px; padding:12px 20px; font-weight:700; font-size:14px; cursor:pointer; }
   .btn:disabled{ opacity:0.5; cursor:not-allowed; }
   .btn-ghost{ background:transparent; border:1px solid var(--line); color:var(--text-dim); border-radius:6px; padding:11px 18px; font-size:13.5px; font-weight:700; cursor:pointer; }
@@ -55,7 +56,7 @@ const CSS = `
   .fieldrow{ display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px; }
   .field{ flex:1; min-width:180px; }
   .field label{ display:block; font-size:11px; color:var(--text-dim); margin-bottom:7px; text-transform:uppercase; letter-spacing:0.04em; }
-  .field input, .field select, .field textarea{ width:100%; background:#141414; border:1px solid var(--line); border-radius:6px; padding:11px 13px; color:var(--text); font-size:14px; box-sizing:border-box; font-family:inherit; }
+  .field input, .field select, .field textarea{ width:100%; background:#F0EEE8; border:1px solid var(--line); border-radius:6px; padding:11px 13px; color:var(--text); font-size:14px; box-sizing:border-box; font-family:inherit; }
   .owner-badge{ font-size:10.5px; color:var(--gold); border:1px solid var(--gold); border-radius:20px; padding:3px 11px; letter-spacing:0.03em; text-transform:uppercase; }
   .statgrid{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:20px; }
   .statcard{ flex:1; min-width:130px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 18px; }
@@ -64,6 +65,17 @@ const CSS = `
   .actionlink{ color:var(--gold); font-size:11.5px; cursor:pointer; }
   .actionlink.danger{ color:var(--red); }
   .toast{ position:fixed; bottom:20px; right:20px; background:var(--card2); border:1px solid var(--gold); color:var(--text); font-size:13px; padding:12px 18px; border-radius:8px; z-index:20; }
+  .btn-danger{ background:var(--red); color:#fff; border:none; border-radius:6px; padding:12px 20px; font-weight:700; font-size:14px; cursor:pointer; }
+  .btn-danger:disabled{ opacity:0.5; cursor:not-allowed; }
+  .modal-backdrop{ position:fixed; inset:0; background:rgba(26,26,26,0.5); display:flex; align-items:center; justify-content:center; z-index:30; padding:20px; }
+  .modal-card{ width:460px; max-width:100%; background:var(--dark); border:1px solid var(--line); border-radius:10px; padding:28px; }
+  .modal-title{ font-size:19px; font-weight:700; margin:0 0 6px; }
+  .modal-sub{ font-size:13.5px; color:var(--text-dim); margin:0 0 18px; }
+  .modal-risks{ background:var(--card); border:1px solid var(--line); border-radius:8px; padding:16px 18px; margin:0 0 22px; list-style:none; }
+  .modal-risks li{ font-size:13px; color:var(--text-dim); margin-bottom:10px; line-height:1.5; padding-left:18px; position:relative; }
+  .modal-risks li:last-child{ margin-bottom:0; }
+  .modal-risks li::before{ content:"⚠"; position:absolute; left:0; color:var(--red); }
+  .modal-actions{ display:flex; gap:12px; justify-content:flex-end; }
 `;
 
 function Toast({ mensagem }) {
@@ -72,10 +84,9 @@ function Toast({ mensagem }) {
 }
 
 export default function AdminApp() {
-  const [screen, setScreen] = useState("login-credenciais"); // login-credenciais | login-2fa | app
+  const [screen, setScreen] = useState("login-credenciais"); // login-credenciais | app
   const [loginEmail, setLoginEmail] = useState("");
   const [loginSenha, setLoginSenha] = useState("");
-  const [loginCodigo, setLoginCodigo] = useState("");
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
   const [admin, setAdmin] = useState(null); // { nome, papel }
@@ -92,20 +103,7 @@ export default function AdminApp() {
     e.preventDefault();
     setErro(""); setCarregando(true);
     try {
-      await api.login(loginEmail, loginSenha);
-      setScreen("login-2fa");
-    } catch (err) {
-      setErro(err.message);
-    } finally {
-      setCarregando(false);
-    }
-  }
-
-  async function handle2fa(e) {
-    e.preventDefault();
-    setErro(""); setCarregando(true);
-    try {
-      const dados = await api.confirmar2fa(loginEmail, loginCodigo);
+      const dados = await api.login(loginEmail, loginSenha);
       setAdmin({ nome: dados.nome, papel: dados.papel });
       setScreen("app");
     } catch (err) {
@@ -118,19 +116,19 @@ export default function AdminApp() {
   // ---------------- LOGIN — CREDENCIAIS ----------------
   if (screen === "login-credenciais") {
     return (
-      <div className="nera-app">
+      <div className="app-shell">
         <style>{CSS}</style>
-        <div className="topbar"><div className="brand"><div className="mark">N</div><div className="name serif">Nera treinamento</div></div><div style={{ color: "var(--text-dim)", fontSize: 13 }}>equipe interna</div></div>
+        <div className="topbar"><div className="brand"><img className="mark" src={logoHabitatCebrace} alt="Habitat by Cebrace" /><div className="name serif">Conversas de Conforto Habitat by Cebrace</div></div></div>
         <div className="login-wrap">
           <div className="kicker">Painel administrativo</div>
-          <h1 className="login-title serif">Portal de gerenciamento Nera treinamento</h1>
+          <h1 className="login-title serif">Gerenciamento de Usuários do Treinamento</h1>
           <div className="login-card">
             <form onSubmit={handleLogin}>
               <span className="flabel">E-mail</span>
               <input className="finput" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} />
               <span className="flabel">Senha</span>
               <input className="finput" type="password" value={loginSenha} onChange={(e) => setLoginSenha(e.target.value)} />
-              <button className="fbtn" type="submit" disabled={carregando}>{carregando ? "Verificando..." : "Continuar"}</button>
+              <button className="fbtn" type="submit" disabled={carregando}>{carregando ? "Entrando..." : "Entrar"}</button>
               {erro && <div className="err">{erro}</div>}
               <div className="fnote">3 tentativas de senha antes do bloqueio — depois, redefinição via e-mail do próprio admin.</div>
             </form>
@@ -140,30 +138,9 @@ export default function AdminApp() {
     );
   }
 
-  // ---------------- LOGIN — 2FA ----------------
-  if (screen === "login-2fa") {
-    return (
-      <div className="nera-app">
-        <style>{CSS}</style>
-        <div className="topbar"><div className="brand"><div className="mark">N</div><div className="name serif">Nera treinamento</div></div></div>
-        <div className="login-wrap">
-          <div className="kicker">Confirmação de identidade</div>
-          <h1 className="login-title serif">Digite o código</h1>
-          <div className="login-card">
-            <form onSubmit={handle2fa}>
-              <span className="flabel">Código de confirmação</span>
-              <input className="finput" style={{ textAlign: "center", letterSpacing: 6, fontSize: 18 }} value={loginCodigo} onChange={(e) => setLoginCodigo(e.target.value)} placeholder="000000" />
-              <button className="fbtn" type="submit" disabled={carregando}>{carregando ? "Confirmando..." : "Entrar no painel"}</button>
-              {erro && <div className="err">{erro}</div>}
-            </form>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const tabs = [
     { key: "turmas", label: "Turmas" },
+    { key: "quiz", label: "Condução da Prova" },
     { key: "monitoramento", label: "Monitoramento" },
     { key: "cadastro", label: "Cadastro no dia" },
     { key: "conteudo", label: "Conteúdo" },
@@ -172,10 +149,10 @@ export default function AdminApp() {
   ];
 
   return (
-    <div className="nera-app">
+    <div className="app-shell">
       <style>{CSS}</style>
       <div className="topbar">
-        <div className="brand"><div className="mark">N</div><div className="name serif">Nera treinamento</div></div>
+        <div className="brand"><img className="mark" src={logoHabitatCebrace} alt="Habitat by Cebrace" /><div className="name serif">Conversas de Conforto Habitat by Cebrace</div></div>
         <div style={{ color: "var(--text-dim)", fontSize: 13 }}>{admin.nome} · {admin.papel === "owner" ? "Owner" : "Operador"}</div>
       </div>
       <div className="nav">
@@ -183,6 +160,7 @@ export default function AdminApp() {
       </div>
 
       {tab === "turmas" && <TelaTurmas avisar={avisar} />}
+      {tab === "quiz" && <TelaQuizAoVivo avisar={avisar} />}
       {tab === "monitoramento" && <TelaMonitoramento />}
       {tab === "cadastro" && <TelaCadastroNoDia avisar={avisar} />}
       {tab === "conteudo" && <TelaConteudo avisar={avisar} />}
@@ -204,13 +182,24 @@ function TelaTurmas({ avisar }) {
 
   const [nome, setNome] = useState("");
   const [dataEvento, setDataEvento] = useState("");
-  const [linhasRaw, setLinhasRaw] = useState("Nome, E-mail, Empresa, CNPJ\nJoão Pedro, joao.pedro@empresa.com.br, Esquadrias Bella, 12.345.678/0001-90");
+  const [participantes, setParticipantes] = useState([]);
+  const [campoNome, setCampoNome] = useState("");
+  const [campoEmail, setCampoEmail] = useState("");
+  const [campoEmpresa, setCampoEmpresa] = useState("");
+  const [campoCnpj, setCampoCnpj] = useState("");
   const [conferencia, setConferencia] = useState(null);
+  const [turmaParaEncerrar, setTurmaParaEncerrar] = useState(null);
+  const [encerrando, setEncerrando] = useState(false);
 
+  // Busca a lista completa uma única vez — as abas de status filtram no
+  // próprio navegador, sem nova ida ao servidor a cada clique. Antes,
+  // cada troca de aba disparava uma requisição nova (e a latência até o
+  // banco deixava a troca visivelmente lenta, além de abrir espaço para
+  // respostas chegarem fora de ordem e mostrarem o filtro errado).
   async function carregar() {
     setCarregando(true);
     try {
-      const { turmas } = await api.listarTurmas(filtro);
+      const { turmas } = await api.listarTurmas("todas");
       setTurmas(turmas);
     } catch (err) {
       avisar(err.message);
@@ -219,20 +208,23 @@ function TelaTurmas({ avisar }) {
     }
   }
 
-  useEffect(() => { carregar(); /* eslint-disable-next-line */ }, [filtro]);
+  useEffect(() => { carregar(); /* eslint-disable-next-line */ }, []);
 
-  function parseLinhas(raw) {
-    return raw.split("\n").slice(1) // ignora o cabeçalho digitado pelo usuário
-      .map((l) => l.trim()).filter(Boolean)
-      .map((linha) => {
-        const [n, e, emp, cnpj] = linha.split(",").map((s) => (s || "").trim());
-        return { nome: n, email: e, empresa: emp, cnpj };
-      });
+  const turmasFiltradas = filtro === "todas" ? turmas : turmas.filter((t) => t.status === filtro);
+
+  function handleAdicionarParticipante() {
+    if (!campoNome.trim() || !campoEmail.trim()) { avisar("Informe nome e e-mail do participante."); return; }
+    setParticipantes([...participantes, { nome: campoNome.trim(), email: campoEmail.trim(), empresa: campoEmpresa.trim(), cnpj: campoCnpj.trim() }]);
+    setCampoNome(""); setCampoEmail(""); setCampoEmpresa(""); setCampoCnpj("");
+  }
+
+  function handleRemoverParticipante(index) {
+    setParticipantes(participantes.filter((_, i) => i !== index));
   }
 
   async function handleConferir() {
     try {
-      const { validos, erros } = await api.conferirLista(parseLinhas(linhasRaw));
+      const { validos, erros } = await api.conferirLista(participantes);
       setConferencia({ validos, erros });
     } catch (err) {
       avisar(err.message);
@@ -243,16 +235,31 @@ function TelaTurmas({ avisar }) {
     try {
       await api.criarTurma(nome, dataEvento, conferencia.validos);
       avisar(`Turma "${nome}" criada com ${conferencia.validos.length} participantes.`);
-      setConferencia(null); setLinhasRaw(""); setNome(""); setDataEvento("");
+      setConferencia(null); setParticipantes([]); setNome(""); setDataEvento("");
       carregar();
     } catch (err) {
       avisar(err.message);
     }
   }
 
+  async function handleEncerrar(turma) {
+    setEncerrando(true);
+    try {
+      await api.encerrarTurma(turma.id);
+      avisar(`Turma "${turma.nome}" encerrada — pódio liberado para os participantes.`);
+      setTurmaParaEncerrar(null);
+      carregar();
+    } catch (err) {
+      avisar(err.message);
+    } finally {
+      setEncerrando(false);
+    }
+  }
+
   return (
+    <>
     <div className="content">
-      <div className="row-between"><div><div className="h1 serif">Turmas</div><div className="h2">{turmas.length} turmas nesta visão</div></div></div>
+      <div className="row-between"><div><div className="h1 serif">Turmas</div><div className="h2">{turmasFiltradas.length} turmas nesta visão</div></div></div>
       <div className="filterbar">
         {["todas", "ativa", "agendada", "encerrada"].map((f) => (
           <button key={f} className={"filterchip" + (filtro === f ? " active" : "")} onClick={() => setFiltro(f)}>
@@ -263,13 +270,14 @@ function TelaTurmas({ avisar }) {
 
       {carregando ? <div style={{ color: "var(--text-faint)" }}>Carregando...</div> : (
         <table className="tbl">
-          <thead><tr><th>Turma</th><th>Data</th><th>Empresas</th><th>Participantes</th><th>Status</th></tr></thead>
+          <thead><tr><th>Turma</th><th>Data</th><th>Empresas</th><th>Participantes</th><th>Status</th><th></th></tr></thead>
           <tbody>
-            {turmas.map((t) => (
+            {turmasFiltradas.map((t) => (
               <tr key={t.id}>
                 <td>{t.nome}</td><td>{new Date(t.data_evento).toLocaleDateString("pt-BR")}</td>
                 <td>{t.empresas}</td><td>{t.participantes}</td>
                 <td><span className={"pill " + t.status}>{t.status}</span></td>
+                <td>{t.status === "ativa" && <button className="btn-ghost" onClick={() => setTurmaParaEncerrar(t)}>Encerrar</button>}</td>
               </tr>
             ))}
           </tbody>
@@ -282,11 +290,31 @@ function TelaTurmas({ avisar }) {
           <div className="field"><label>Nome da turma</label><input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: Turma 05" /></div>
           <div className="field"><label>Data do evento</label><input type="date" value={dataEvento} onChange={(e) => setDataEvento(e.target.value)} /></div>
         </div>
-        <div className="field" style={{ marginBottom: 16 }}>
-          <label>Lista (Nome, E-mail, Empresa, CNPJ — CNPJ opcional)</label>
-          <textarea rows={4} value={linhasRaw} onChange={(e) => setLinhasRaw(e.target.value)} />
+        <div className="fieldrow">
+          <div className="field"><label>Nome</label><input value={campoNome} onChange={(e) => setCampoNome(e.target.value)} /></div>
+          <div className="field"><label>E-mail</label><input value={campoEmail} onChange={(e) => setCampoEmail(e.target.value)} /></div>
         </div>
-        <button className="btn-ghost" onClick={handleConferir}>Conferir lista</button>
+        <div className="fieldrow">
+          <div className="field"><label>Empresa</label><input value={campoEmpresa} onChange={(e) => setCampoEmpresa(e.target.value)} /></div>
+          <div className="field"><label>CNPJ (se houver)</label><input value={campoCnpj} onChange={(e) => setCampoCnpj(e.target.value)} placeholder="00.000.000/0000-00" /></div>
+        </div>
+        <button className="btn-ghost" onClick={handleAdicionarParticipante}>Adicionar participante</button>
+
+        {participantes.length > 0 && (
+          <table className="tbl" style={{ marginTop: 14 }}>
+            <thead><tr><th>Nome</th><th>E-mail</th><th>Empresa</th><th>CNPJ</th><th></th></tr></thead>
+            <tbody>
+              {participantes.map((p, i) => (
+                <tr key={i}>
+                  <td>{p.nome}</td><td>{p.email}</td><td>{p.empresa}</td><td>{p.cnpj}</td>
+                  <td><button className="btn-ghost" onClick={() => handleRemoverParticipante(i)}>Remover</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+
+        <button className="btn-ghost" style={{ marginTop: 14 }} disabled={participantes.length === 0} onClick={handleConferir}>Conferir lista</button>
 
         {conferencia && (
           <div style={{ marginTop: 14 }}>
@@ -294,7 +322,7 @@ function TelaTurmas({ avisar }) {
               <thead><tr><th>Nome</th><th>E-mail</th><th>Empresa</th><th>Status</th></tr></thead>
               <tbody>
                 {conferencia.validos.map((v, i) => <tr key={"v" + i}><td>{v.nome}</td><td>{v.email}</td><td>{v.empresa}</td><td><span className="pill ativa">válido</span></td></tr>)}
-                {conferencia.erros.map((er, i) => <tr key={"e" + i}><td>{er.nome}</td><td>{er.email}</td><td>—</td><td><span className="pill" style={{ background: "rgba(192,86,79,0.15)", color: "var(--red)" }}>{er.motivo}</span></td></tr>)}
+                {conferencia.erros.map((er, i) => <tr key={"e" + i}><td>{er.nome}</td><td>{er.email}</td><td>—</td><td><span className="pill" style={{ background: "rgba(237,20,80,0.15)", color: "var(--red)" }}>{er.motivo}</span></td></tr>)}
               </tbody>
             </table>
             <button className="btn" style={{ marginTop: 10 }} disabled={conferencia.validos.length === 0} onClick={handleConfirmar}>
@@ -304,12 +332,38 @@ function TelaTurmas({ avisar }) {
         )}
       </div>
     </div>
+
+    {turmaParaEncerrar && (
+      <div className="modal-backdrop" onClick={() => !encerrando && setTurmaParaEncerrar(null)}>
+        <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-title serif">Encerrar "{turmaParaEncerrar.nome}"?</div>
+          <div className="modal-sub">O treinamento ainda está em andamento para esta turma. Antes de confirmar, veja o que acontece:</div>
+          <ul className="modal-risks">
+            <li>A turma sai da lista de turmas ativas — você não consegue mais conduzir o quiz ao vivo (iniciar fases, avançar perguntas) nem os participantes respondem mais perguntas.</li>
+            <li>Os participantes continuam conseguindo entrar (ou voltar a entrar) na plataforma pra ver o pódio final, mas só pelas próximas 12 horas — depois disso o acesso se encerra de vez.</li>
+            <li>Essa ação não pode ser desfeita pela tela — a turma não volta a ficar Ativa.</li>
+          </ul>
+          <div className="modal-actions">
+            <button className="btn-ghost" disabled={encerrando} onClick={() => setTurmaParaEncerrar(null)}>Cancelar</button>
+            <button className="btn-danger" disabled={encerrando} onClick={() => handleEncerrar(turmaParaEncerrar)}>
+              {encerrando ? "Encerrando..." : "Prosseguir com o encerramento"}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
 
 // =====================================================================
 // MONITORAMENTO — só turmas ativas
 // =====================================================================
+function formatarStatus(status) {
+  const semUnderscore = status.replace(/_/g, " ");
+  return semUnderscore.charAt(0).toUpperCase() + semUnderscore.slice(1);
+}
+
 function TelaMonitoramento() {
   const [turmasAtivas, setTurmasAtivas] = useState([]);
   const [turmaId, setTurmaId] = useState("");
@@ -348,19 +402,129 @@ function TelaMonitoramento() {
 
       {!dados ? <div style={{ color: "var(--text-faint)" }}>Carregando...</div> : (
         <table className="tbl">
-          <thead><tr><th>Participante</th><th>Empresa</th><th>Origem</th><th>Módulo</th><th>Progresso</th><th>XP</th><th>Streak</th><th>Status</th></tr></thead>
+          <thead><tr><th>Participante</th><th>Empresa</th><th>Origem</th><th>Fase 1</th><th>Fase 2</th><th>Streak</th><th>Status</th></tr></thead>
           <tbody>
             {dados.participantes.map((p, i) => (
               <tr key={i}>
                 <td>{p.nome}</td><td>{p.empresa || "—"}</td>
                 <td>{p.origem === "no_dia" ? <span className="pill agendada">No dia</span> : "Lista"}</td>
-                <td>{String(p.moduloAtual).padStart(2, "0")}</td><td>{p.progresso}%</td>
-                <td>{p.xpTotal}</td><td>{p.melhorStreak}</td>
-                <td>{p.status}</td>
+                <td>{p.xpFase1}</td><td>{p.xpFase2}</td>
+                <td>{p.melhorStreak}</td>
+                <td>{formatarStatus(p.status)}</td>
               </tr>
             ))}
           </tbody>
         </table>
+      )}
+    </div>
+  );
+}
+
+// =====================================================================
+// CONDUÇÃO DA PROVA — quiz ao vivo (Fase 1 durante a apresentação,
+// Fase 2 depois, liberada manualmente pelo admin/tutor)
+// =====================================================================
+function TelaQuizAoVivo({ avisar }) {
+  const [turmasAtivas, setTurmasAtivas] = useState([]);
+  const [turmaId, setTurmaId] = useState("");
+  const [dados, setDados] = useState(null);
+  const [processando, setProcessando] = useState(false);
+
+  useEffect(() => {
+    api.turmasAtivas().then((r) => {
+      setTurmasAtivas(r.turmas);
+      if (r.turmas.length > 0) setTurmaId(r.turmas[0].id);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!turmaId) return;
+    let ativo = true;
+    async function consultar() {
+      try {
+        const r = await api.quizEstadoAdmin(turmaId);
+        if (ativo) setDados(r);
+      } catch { /* silencioso — próximo ciclo tenta de novo */ }
+    }
+    consultar();
+    const intervalo = setInterval(consultar, 2500);
+    return () => { ativo = false; clearInterval(intervalo); };
+  }, [turmaId]);
+
+  async function executar(acao) {
+    setProcessando(true);
+    try {
+      await acao(turmaId);
+      const r = await api.quizEstadoAdmin(turmaId);
+      setDados(r);
+    } catch (err) {
+      avisar(err.message);
+    } finally {
+      setProcessando(false);
+    }
+  }
+
+  return (
+    <div className="content">
+      <div className="row-between">
+        <div><div className="h1 serif">Condução da Prova</div><div className="h2">Atualiza a cada 2.5s</div></div>
+        <select className="finput" style={{ width: 240, margin: 0 }} value={turmaId} onChange={(e) => { setTurmaId(e.target.value); setDados(null); }}>
+          {turmasAtivas.map((t) => <option key={t.id} value={t.id}>{t.nome}</option>)}
+        </select>
+      </div>
+      <div className="h2" style={{ marginTop: -12 }}>Somente turmas com status Ativa aparecem nesta lista.</div>
+
+      {!dados ? <div style={{ color: "var(--text-faint)" }}>Carregando...</div> : (
+        <>
+          <div className="statgrid">
+            <div className="statcard"><div className="v">{dados.fase === 0 ? "—" : dados.fase}</div><div className="l">Fase atual</div></div>
+            <div className="statcard"><div className="v">{dados.indiceAtual != null ? dados.indiceAtual + 1 : "—"}/{dados.totalPerguntas}</div><div className="l">Pergunta</div></div>
+            <div className="statcard"><div className="v">{dados.responderam}/{dados.totalParticipantes}</div><div className="l">Responderam</div></div>
+            <div className="statcard"><div className="v">{dados.corretas}</div><div className="l">Acertaram</div></div>
+          </div>
+
+          <div className="panel">
+            <div className="panel-title">Estado do quiz</div>
+            {dados.quizEstado === "aguardando" && (
+              <>
+                <div style={{ marginBottom: 16 }}>A turma ainda não começou a Fase 1. Inicie quando o tutor estiver pronto para conduzir a primeira pergunta.</div>
+                <button className="btn" disabled={processando} onClick={() => executar(api.quizIniciarFase1)}>
+                  {processando ? "Iniciando..." : "Iniciar Fase 1"}
+                </button>
+              </>
+            )}
+
+            {dados.quizEstado === "pergunta_ativa" && dados.questaoAtual && (
+              <>
+                <div style={{ fontSize: 12, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--text-faint)", marginBottom: 8 }}>
+                  {dados.questaoAtual.topico}
+                </div>
+                <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 14 }}>{dados.questaoAtual.pergunta}</div>
+                {dados.questaoAtual.alternativas.map((alt, i) => (
+                  <div key={i} style={{ fontSize: 13.5, padding: "8px 0", color: i === dados.questaoAtual.correta ? "var(--green)" : "var(--text-dim)", fontWeight: i === dados.questaoAtual.correta ? 700 : 400 }}>
+                    {String.fromCharCode(65 + i)}. {alt}{i === dados.questaoAtual.correta ? " — correta" : ""}
+                  </div>
+                ))}
+                <button className="btn" style={{ marginTop: 14 }} disabled={processando} onClick={() => executar(api.quizProximaPergunta)}>
+                  {processando ? "Avançando..." : "Próxima pergunta"}
+                </button>
+              </>
+            )}
+
+            {dados.quizEstado === "fase1_concluida" && (
+              <>
+                <div style={{ marginBottom: 16 }}>A Fase 1 terminou — o pódio 1 já está disponível para os participantes. Libere a Fase 2 depois que o tutor concluir a apresentação do conteúdo.</div>
+                <button className="btn" disabled={processando} onClick={() => executar(api.quizLiberarFase2)}>
+                  {processando ? "Liberando..." : "Liberar Fase 2"}
+                </button>
+              </>
+            )}
+
+            {dados.quizEstado === "fase2_concluida" && (
+              <div>A Fase 2 terminou — o pódio final (Fase 1 + Fase 2) já está disponível para os participantes.</div>
+            )}
+          </div>
+        </>
       )}
     </div>
   );
@@ -430,20 +594,24 @@ function TelaCadastroNoDia({ avisar }) {
 // =====================================================================
 function TelaConteudo({ avisar }) {
   const [questoes, setQuestoes] = useState([]);
+  const [modulos, setModulos] = useState([]);
   const [bloqueado, setBloqueado] = useState(false);
   const [criando, setCriando] = useState(false);
   const [editandoId, setEditandoId] = useState(null);
   const [rascunho, setRascunho] = useState({});
+  const [criandoModulo, setCriandoModulo] = useState(false);
+  const [rascunhoModulo, setRascunhoModulo] = useState({ nome: "", subtitulo: "" });
 
   async function carregar() {
     const r = await api.listarConteudo();
     setQuestoes(r.questoes);
+    setModulos(r.modulos);
     setBloqueado(r.bloqueadoParaEdicao);
   }
   useEffect(() => { carregar(); }, []);
 
   function novoRascunho() {
-    return { moduloId: 1, topico: "", pergunta: "", cenario: "", alternativas: ["", "", "", ""], correta: 0, explicacao: "" };
+    return { moduloId: modulos[0]?.id, topico: "", pergunta: "", cenario: "", alternativas: ["", "", "", ""], correta: 0, explicacao: "" };
   }
 
   async function salvarNova() {
@@ -468,24 +636,53 @@ function TelaConteudo({ avisar }) {
     }
   }
 
-  const porModulo = { 1: [], 2: [], 3: [] };
+  async function salvarNovoModulo() {
+    try {
+      await api.criarModulo(rascunhoModulo.nome, rascunhoModulo.subtitulo);
+      avisar("Módulo criado.");
+      setCriandoModulo(false);
+      setRascunhoModulo({ nome: "", subtitulo: "" });
+      carregar();
+    } catch (err) {
+      avisar(err.message);
+    }
+  }
+
+  const porModulo = {};
+  modulos.forEach((m) => { porModulo[m.id] = []; });
   questoes.forEach((q) => porModulo[q.modulo_id]?.push(q));
 
   return (
     <div className="content">
       <div className="row-between">
         <div><div className="h1 serif">Conteúdo dos módulos</div><div className="h2">{bloqueado ? "Edição bloqueada: existe turma com status Ativa" : "Criação e edição liberadas — sem turma ativa no momento"}</div></div>
-        <button className="btn" disabled={bloqueado} onClick={() => { setRascunho(novoRascunho()); setCriando(true); }}>+ Nova questão</button>
+        <div style={{ display: "flex", gap: 10 }}>
+          <button className="btn-ghost" disabled={bloqueado} onClick={() => setCriandoModulo(true)}>+ Novo módulo</button>
+          <button className="btn" disabled={bloqueado} onClick={() => { setRascunho(novoRascunho()); setCriando(true); }}>+ Nova questão</button>
+        </div>
       </div>
 
-      {criando && (
-        <FormularioQuestao rascunho={rascunho} setRascunho={setRascunho} onSalvar={salvarNova} onCancelar={() => setCriando(false)} />
+      {criandoModulo && (
+        <div className="panel solid" style={{ marginTop: 16, marginBottom: 16 }}>
+          <div className="fieldrow">
+            <div className="field"><label>Nome do módulo</label><input value={rascunhoModulo.nome} onChange={(e) => setRascunhoModulo({ ...rascunhoModulo, nome: e.target.value })} /></div>
+            <div className="field"><label>Subtítulo (opcional)</label><input value={rascunhoModulo.subtitulo} onChange={(e) => setRascunhoModulo({ ...rascunhoModulo, subtitulo: e.target.value })} /></div>
+          </div>
+          <div style={{ display: "flex", gap: 10 }}>
+            <button className="btn" onClick={salvarNovoModulo}>Salvar módulo</button>
+            <button className="btn-ghost" onClick={() => { setCriandoModulo(false); setRascunhoModulo({ nome: "", subtitulo: "" }); }}>Cancelar</button>
+          </div>
+        </div>
       )}
 
-      {[1, 2, 3].map((m) => (
-        <div key={m} style={{ marginBottom: 20 }}>
-          <div className="panel-title">Módulo {m}</div>
-          {porModulo[m].map((q) => (
+      {criando && (
+        <FormularioQuestao rascunho={rascunho} setRascunho={setRascunho} onSalvar={salvarNova} onCancelar={() => setCriando(false)} modulos={modulos} />
+      )}
+
+      {modulos.map((m) => (
+        <div key={m.id} style={{ marginBottom: 20 }}>
+          <div className="panel-title">Módulo {m.id} — {m.nome}</div>
+          {porModulo[m.id].map((q) => (
             <div key={q.id} className="panel" style={{ marginTop: 8 }}>
               <div style={{ fontSize: 11, color: "var(--text-faint)", marginBottom: 6 }}>{q.topico}</div>
               {editandoId === q.id ? (
@@ -509,7 +706,7 @@ function TelaConteudo({ avisar }) {
   );
 }
 
-function FormularioQuestao({ rascunho, setRascunho, onSalvar, onCancelar, edicao }) {
+function FormularioQuestao({ rascunho, setRascunho, onSalvar, onCancelar, edicao, modulos = [] }) {
   function atualizarAlt(i, valor) {
     const novas = [...rascunho.alternativas];
     novas[i] = valor;
@@ -521,7 +718,7 @@ function FormularioQuestao({ rascunho, setRascunho, onSalvar, onCancelar, edicao
         {!edicao && (
           <div className="field"><label>Módulo</label>
             <select value={rascunho.moduloId} onChange={(e) => setRascunho({ ...rascunho, moduloId: Number(e.target.value) })}>
-              <option value={1}>1 — Fundamentos</option><option value={2}>2 — Desempenho Técnico</option><option value={3}>3 — Aplicação e Decisão</option>
+              {modulos.map((m) => <option key={m.id} value={m.id}>{m.id} — {m.nome}</option>)}
             </select>
           </div>
         )}
@@ -565,18 +762,9 @@ function TelaRelatorio({ admin, avisar }) {
     }
   }
 
-  async function exportarCsv() {
+  async function exportarXlsx() {
     try {
-      await api.baixarCsv(turmaId, `${relatorio.turma.replace(/\s+/g, "_")}_participantes.csv`);
-    } catch (err) {
-      avisar(err.message);
-    }
-  }
-
-  async function enviarRh() {
-    try {
-      await api.enviarRh(turmaId);
-      avisar("Relatório enviado ao RH.");
+      await api.baixarXlsx(turmaId, `controle_${relatorio.turma.replace(/\s+/g, "_")}.xlsx`);
     } catch (err) {
       avisar(err.message);
     }
@@ -587,7 +775,10 @@ function TelaRelatorio({ admin, avisar }) {
       <div className="row-between">
         <div><div className="h1 serif">Relatório</div><div className="h2">Encerramento e exportação de dados</div></div>
         <select className="finput" style={{ width: 240, margin: 0 }} value={turmaId} onChange={(e) => { setTurmaId(e.target.value); setRelatorio(null); }}>
-          {turmas.map((t) => <option key={t.id} value={t.id}>{t.nome}</option>)}
+          {turmas.map((t) => {
+            const sinal = t.status === "ativa" ? "🟢" : t.status === "agendada" ? "🟠" : "⚪";
+            return <option key={t.id} value={t.id}>{sinal} {t.nome} — {formatarStatus(t.status)}</option>;
+          })}
         </select>
       </div>
 
@@ -598,11 +789,13 @@ function TelaRelatorio({ admin, avisar }) {
           <div className="row-between">
             <div />
             {admin.papel === "owner" ? (
-              <button className="btn-owner" onClick={exportarCsv}>
-                Exportar CSV — {relatorio.total} participantes <span className="owner-badge">Owner</span>
-              </button>
+              <div style={{ display: "flex", gap: 10 }}>
+                <button className="btn-owner" onClick={exportarXlsx}>
+                  Exportar controle (XLSX) <span className="owner-badge">Owner</span>
+                </button>
+              </div>
             ) : (
-              <div style={{ fontSize: 12, color: "var(--text-faint)" }}>Exportação de CSV disponível apenas para Owner.</div>
+              <div style={{ fontSize: 12, color: "var(--text-faint)" }}>Exportação disponível apenas para Owner.</div>
             )}
           </div>
           <div className="statgrid">
@@ -610,14 +803,13 @@ function TelaRelatorio({ admin, avisar }) {
             <div className="statcard"><div className="v">{relatorio.concluiram}</div><div className="l">Concluíram</div></div>
             <div className="statcard"><div className="v">{relatorio.taxa}%</div><div className="l">Taxa de conclusão</div></div>
           </div>
-          <div className="h2">O CSV exportado inclui todas as {relatorio.total} linhas de participantes (nome, e-mail, empresa, CNPJ, ranking, pontuação) — a tabela abaixo mostra só o pódio, como prévia.</div>
+          <div className="h2">A exportação inclui todos os {relatorio.total} participantes (nome, e-mail, empresa, status, ranking, pontuação) — a tabela abaixo mostra só o pódio, como prévia. O XLSX vem formatado, com cores e destaque do pódio.</div>
           <table className="tbl">
-            <thead><tr><th>#</th><th>Nome</th><th>Empresa</th><th>XP</th><th>Streak</th></tr></thead>
+            <thead><tr><th>#</th><th>Nome</th><th>Empresa</th><th>Fase 1</th><th>Fase 2</th><th>Streak</th></tr></thead>
             <tbody>
-              {relatorio.podio.map((p, i) => <tr key={i}><td>{i + 1}º</td><td>{p.nome}</td><td>{p.empresa}</td><td>{p.xp_total}</td><td>{p.melhor_streak}</td></tr>)}
+              {relatorio.podio.map((p, i) => <tr key={i}><td>{i + 1}º</td><td>{p.nome}</td><td>{p.empresa}</td><td>{p.xp_fase1}</td><td>{p.xp_fase2}</td><td>{p.melhor_streak}</td></tr>)}
             </tbody>
           </table>
-          <button className="btn" style={{ marginTop: 16 }} onClick={enviarRh}>Enviar ao RH</button>
         </>
       )}
     </div>

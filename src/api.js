@@ -23,7 +23,6 @@ async function chamar(caminho, opcoes = {}) {
 export const api = {
   // autenticação
   login: (email, senha) => chamar("/admin/login", { method: "POST", body: JSON.stringify({ email, senha }) }),
-  confirmar2fa: (email, codigo) => chamar("/admin/confirmar-2fa", { method: "POST", body: JSON.stringify({ email, codigo }) }),
   solicitarResetSenha: (email) => chamar("/admin/solicitar-reset-senha", { method: "POST", body: JSON.stringify({ email }) }),
 
   // turmas
@@ -31,6 +30,13 @@ export const api = {
   conferirLista: (linhas) => chamar("/admin/turmas/conferir", { method: "POST", body: JSON.stringify({ linhas }) }),
   criarTurma: (nome, dataEvento, participantes) =>
     chamar("/admin/turmas", { method: "POST", body: JSON.stringify({ nome, dataEvento, participantes }) }),
+  encerrarTurma: (id) => chamar(`/admin/turmas/${id}/encerrar`, { method: "POST" }),
+
+  // quiz ao vivo (condução da prova)
+  quizEstadoAdmin: (turmaId) => chamar(`/admin/turmas/${turmaId}/quiz`),
+  quizIniciarFase1: (turmaId) => chamar(`/admin/turmas/${turmaId}/quiz/iniciar-fase1`, { method: "POST" }),
+  quizProximaPergunta: (turmaId) => chamar(`/admin/turmas/${turmaId}/quiz/proxima`, { method: "POST" }),
+  quizLiberarFase2: (turmaId) => chamar(`/admin/turmas/${turmaId}/quiz/liberar-fase2`, { method: "POST" }),
 
   // cadastro no dia / liberação manual
   cadastroNoDia: (turmaId, nome, email, empresa, cnpj) =>
@@ -46,18 +52,18 @@ export const api = {
   listarConteudo: () => chamar("/admin/conteudo"),
   criarQuestao: (dados) => chamar("/admin/conteudo", { method: "POST", body: JSON.stringify(dados) }),
   editarQuestao: (id, dados) => chamar(`/admin/conteudo/${id}`, { method: "PUT", body: JSON.stringify(dados) }),
+  criarModulo: (nome, subtitulo) => chamar("/admin/modulos", { method: "POST", body: JSON.stringify({ nome, subtitulo }) }),
 
   // relatório
   relatorio: (turmaId) => chamar(`/admin/relatorio/${turmaId}`),
-  enviarRh: (turmaId) => chamar(`/admin/relatorio/${turmaId}/enviar-rh`, { method: "POST" }),
-  baixarCsv: async (turmaId, nomeArquivo) => {
-    const resp = await chamar(`/admin/relatorio/${turmaId}/csv`, { raw: true });
-    if (!resp.ok) throw new Error("Não foi possível gerar o CSV (verifique se você tem papel Owner).");
+  baixarXlsx: async (turmaId, nomeArquivo) => {
+    const resp = await chamar(`/admin/relatorio/${turmaId}/xlsx`, { raw: true });
+    if (!resp.ok) throw new Error("Não foi possível gerar o XLSX (verifique se você tem papel Owner).");
     const blob = await resp.blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = nomeArquivo || "participantes.csv";
+    a.download = nomeArquivo || "controle_participantes.xlsx";
     a.click();
     URL.revokeObjectURL(url);
   },
