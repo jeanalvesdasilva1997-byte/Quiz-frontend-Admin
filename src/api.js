@@ -24,6 +24,8 @@ export const api = {
   // autenticação
   login: (email, senha) => chamar("/admin/login", { method: "POST", body: JSON.stringify({ email, senha }) }),
   solicitarResetSenha: (email) => chamar("/admin/solicitar-reset-senha", { method: "POST", body: JSON.stringify({ email }) }),
+  redefinirSenha: (email, token, novaSenha) =>
+    chamar("/admin/redefinir-senha", { method: "POST", body: JSON.stringify({ email, token, novaSenha }) }),
 
   // turmas
   listarTurmas: (status) => chamar(`/admin/turmas${status && status !== "todas" ? `?status=${status}` : ""}`),

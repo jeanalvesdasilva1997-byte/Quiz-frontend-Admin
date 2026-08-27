@@ -85,7 +85,18 @@ function Toast({ mensagem }) {
 }
 
 export default function AdminApp() {
-  const [screen, setScreen] = useState("login-credenciais"); // login-credenciais | app
+  // O front não tem roteador — o link de redefinição de senha do e-mail
+  // chega como query string na raiz (?view=redefinir-senha&token=...&email=...),
+  // não como um path próprio, porque isso funciona em qualquer hospedagem
+  // estática sem precisar de rewrite de servidor (ver adminAuth.js).
+  const [screen, setScreen] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("view") === "redefinir-senha" && params.get("token") && params.get("email")
+      ? "redefinir-senha"
+      : "login-credenciais";
+  }); // login-credenciais | esqueci-senha | redefinir-senha | app
+  const [resetToken] = useState(() => new URLSearchParams(window.location.search).get("token") || "");
+  const [resetEmail] = useState(() => new URLSearchParams(window.location.search).get("email") || "");
   const [loginEmail, setLoginEmail] = useState("");
   const [loginSenha, setLoginSenha] = useState("");
   const [erro, setErro] = useState("");
@@ -131,11 +142,37 @@ export default function AdminApp() {
               <input className="finput" type="password" value={loginSenha} onChange={(e) => setLoginSenha(e.target.value)} />
               <button className="fbtn" type="submit" disabled={carregando}>{carregando ? "Entrando..." : "Entrar"}</button>
               {erro && <div className="err">{erro}</div>}
-              <div className="fnote">3 tentativas de senha antes do bloqueio — depois, redefinição via e-mail do próprio admin.</div>
+              <div className="fnote">
+                3 tentativas de senha antes do bloqueio — depois, redefinição via e-mail do próprio admin.
+                <br />
+                <button
+                  type="button"
+                  onClick={() => { setErro(""); setScreen("esqueci-senha"); }}
+                  style={{ background: "none", border: "none", padding: 0, marginTop: 8, color: "var(--gold)", cursor: "pointer", font: "inherit" }}
+                >
+                  Esqueci minha senha
+                </button>
+              </div>
             </form>
           </div>
         </div>
       </div>
+    );
+  }
+
+  // ---------------- ESQUECI MINHA SENHA — SOLICITAR ----------------
+  if (screen === "esqueci-senha") {
+    return <TelaEsqueciSenha voltar={() => setScreen("login-credenciais")} />;
+  }
+
+  // ---------------- REDEFINIR SENHA (link do e-mail) ----------------
+  if (screen === "redefinir-senha") {
+    return (
+      <TelaRedefinirSenha
+        email={resetEmail}
+        token={resetToken}
+        aoConcluir={() => { window.history.replaceState(null, "", window.location.pathname); setScreen("login-credenciais"); }}
+      />
     );
   }
 
@@ -169,6 +206,108 @@ export default function AdminApp() {
       {tab === "acesso" && admin.papel === "owner" && <TelaAcesso admin={admin} avisar={avisar} />}
 
       <Toast mensagem={toast} />
+    </div>
+  );
+}
+
+// =====================================================================
+// ESQUECI MINHA SENHA — solicita o link de redefinição
+// =====================================================================
+function TelaEsqueciSenha({ voltar }) {
+  const [email, setEmail] = useState("");
+  const [carregando, setCarregando] = useState(false);
+  const [enviado, setEnviado] = useState(false);
+  const [erro, setErro] = useState("");
+
+  async function handleSolicitar(e) {
+    e.preventDefault();
+    setErro(""); setCarregando(true);
+    try {
+      await api.solicitarResetSenha(email);
+      setEnviado(true);
+    } catch (err) {
+      setErro(err.message);
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  return (
+    <div className="app-shell">
+      <style>{CSS}</style>
+      <div className="topbar"><div className="brand"><img className="mark" src={logoHabitatCebrace} alt="Habitat by Cebrace" /><div className="name serif">Conversas de Conforto Habitat by Cebrace</div></div></div>
+      <div className="login-wrap">
+        <div className="kicker kicker-login">Esqueci minha senha</div>
+        <h1 className="login-title serif">Redefinir senha de acesso</h1>
+        <div className="login-card">
+          {enviado ? (
+            <div>
+              <div className="ok-msg" style={{ marginBottom: 18 }}>Se o e-mail existir, um link de redefinição foi enviado. Confira sua caixa de entrada.</div>
+              <button className="fbtn" onClick={voltar}>Voltar ao login</button>
+            </div>
+          ) : (
+            <form onSubmit={handleSolicitar}>
+              <span className="flabel">E-mail</span>
+              <input className="finput" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <button className="fbtn" type="submit" disabled={carregando}>{carregando ? "Enviando..." : "Enviar link de redefinição"}</button>
+              {erro && <div className="err">{erro}</div>}
+              <div className="fnote">
+                <button type="button" onClick={voltar} style={{ background: "none", border: "none", padding: 0, color: "var(--gold)", cursor: "pointer", font: "inherit" }}>
+                  Voltar ao login
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// =====================================================================
+// REDEFINIR SENHA — chegada pelo link do e-mail (token + e-mail na URL)
+// =====================================================================
+function TelaRedefinirSenha({ email, token, aoConcluir }) {
+  const [novaSenha, setNovaSenha] = useState("");
+  const [confirmarSenha, setConfirmarSenha] = useState("");
+  const [carregando, setCarregando] = useState(false);
+  const [erro, setErro] = useState("");
+
+  async function handleRedefinir(e) {
+    e.preventDefault();
+    setErro("");
+    if (novaSenha.length < 6) { setErro("A senha deve ter pelo menos 6 caracteres."); return; }
+    if (novaSenha !== confirmarSenha) { setErro("As senhas não coincidem."); return; }
+    setCarregando(true);
+    try {
+      await api.redefinirSenha(email, token, novaSenha);
+      aoConcluir();
+    } catch (err) {
+      setErro(err.message);
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  return (
+    <div className="app-shell">
+      <style>{CSS}</style>
+      <div className="topbar"><div className="brand"><img className="mark" src={logoHabitatCebrace} alt="Habitat by Cebrace" /><div className="name serif">Conversas de Conforto Habitat by Cebrace</div></div></div>
+      <div className="login-wrap">
+        <div className="kicker kicker-login">Redefinir senha</div>
+        <h1 className="login-title serif">Defina uma nova senha</h1>
+        <p className="login-sub login-sub-sm">Para <b style={{ color: "var(--text)" }}>{email}</b>.</p>
+        <div className="login-card">
+          <form onSubmit={handleRedefinir}>
+            <span className="flabel">Nova senha</span>
+            <input className="finput" type="password" value={novaSenha} onChange={(e) => setNovaSenha(e.target.value)} placeholder="Mínimo 6 caracteres" />
+            <span className="flabel">Confirmar senha</span>
+            <input className="finput" type="password" value={confirmarSenha} onChange={(e) => setConfirmarSenha(e.target.value)} />
+            <button className="fbtn" type="submit" disabled={carregando}>{carregando ? "Salvando..." : "Redefinir senha"}</button>
+            {erro && <div className="err">{erro}</div>}
+          </form>
+        </div>
+      </div>
     </div>
   );
 }
