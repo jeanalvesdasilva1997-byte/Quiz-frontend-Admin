@@ -17,6 +17,7 @@ const CSS = `
   .brand .name{ font-size:15px; letter-spacing:0.02em; font-weight:700; color:var(--gold); }
   .login-wrap{ display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:80vh; padding:60px; text-align:center; }
   .kicker{ font-size:13px; letter-spacing:0.16em; text-transform:uppercase; color:var(--gold); margin-bottom:18px; }
+  .kicker.kicker-login{ font-size:16px; letter-spacing:0.02em; text-transform:none; }
   .login-title{ font-size:36px; font-weight:700; margin:0 0 16px; max-width:720px; line-height:1.25; }
   .login-card{ width:420px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:36px; text-align:left; }
   .flabel{ font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-dim); margin-bottom:8px; display:block; }
@@ -120,7 +121,7 @@ export default function AdminApp() {
         <style>{CSS}</style>
         <div className="topbar"><div className="brand"><img className="mark" src={logoHabitatCebrace} alt="Habitat by Cebrace" /><div className="name serif">Conversas de Conforto Habitat by Cebrace</div></div></div>
         <div className="login-wrap">
-          <div className="kicker">Painel administrativo</div>
+          <div className="kicker kicker-login">Painel administrativo</div>
           <h1 className="login-title serif">Gerenciamento de Usuários do Treinamento</h1>
           <div className="login-card">
             <form onSubmit={handleLogin}>
@@ -188,6 +189,8 @@ function TelaTurmas({ avisar }) {
   const [campoEmpresa, setCampoEmpresa] = useState("");
   const [campoCnpj, setCampoCnpj] = useState("");
   const [conferencia, setConferencia] = useState(null);
+  const [turmaParaAtivar, setTurmaParaAtivar] = useState(null);
+  const [ativando, setAtivando] = useState(false);
   const [turmaParaEncerrar, setTurmaParaEncerrar] = useState(null);
   const [encerrando, setEncerrando] = useState(false);
 
@@ -242,6 +245,20 @@ function TelaTurmas({ avisar }) {
     }
   }
 
+  async function handleAtivar(turma) {
+    setAtivando(true);
+    try {
+      await api.ativarTurma(turma.id);
+      avisar(`Turma "${turma.nome}" ativada — participantes já podem acessar.`);
+      setTurmaParaAtivar(null);
+      carregar();
+    } catch (err) {
+      avisar(err.message);
+    } finally {
+      setAtivando(false);
+    }
+  }
+
   async function handleEncerrar(turma) {
     setEncerrando(true);
     try {
@@ -277,7 +294,10 @@ function TelaTurmas({ avisar }) {
                 <td>{t.nome}</td><td>{new Date(t.data_evento).toLocaleDateString("pt-BR")}</td>
                 <td>{t.empresas}</td><td>{t.participantes}</td>
                 <td><span className={"pill " + t.status}>{t.status}</span></td>
-                <td>{t.status === "ativa" && <button className="btn-ghost" onClick={() => setTurmaParaEncerrar(t)}>Encerrar</button>}</td>
+                <td>
+                  {t.status === "agendada" && <button className="btn-ghost" onClick={() => setTurmaParaAtivar(t)}>Ativar</button>}
+                  {t.status === "ativa" && <button className="btn-ghost" onClick={() => setTurmaParaEncerrar(t)}>Encerrar</button>}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -332,6 +352,26 @@ function TelaTurmas({ avisar }) {
         )}
       </div>
     </div>
+
+    {turmaParaAtivar && (
+      <div className="modal-backdrop" onClick={() => !ativando && setTurmaParaAtivar(null)}>
+        <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-title serif">Ativar "{turmaParaAtivar.nome}"?</div>
+          <div className="modal-sub">Antes de confirmar, veja o que acontece:</div>
+          <ul className="modal-risks">
+            <li>A janela de acesso dos participantes começa a contar agora e vale por 24 horas.</li>
+            <li>A turma passa a aparecer em Monitoramento e em Condução da Prova, pronta pra iniciar a Fase 1.</li>
+            <li>Os participantes já cadastrados na lista conseguem entrar a partir de agora.</li>
+          </ul>
+          <div className="modal-actions">
+            <button className="btn-ghost" disabled={ativando} onClick={() => setTurmaParaAtivar(null)}>Cancelar</button>
+            <button className="btn" disabled={ativando} onClick={() => handleAtivar(turmaParaAtivar)}>
+              {ativando ? "Ativando..." : "Ativar turma"}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
 
     {turmaParaEncerrar && (
       <div className="modal-backdrop" onClick={() => !encerrando && setTurmaParaEncerrar(null)}>

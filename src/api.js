@@ -30,6 +30,7 @@ export const api = {
   conferirLista: (linhas) => chamar("/admin/turmas/conferir", { method: "POST", body: JSON.stringify({ linhas }) }),
   criarTurma: (nome, dataEvento, participantes) =>
     chamar("/admin/turmas", { method: "POST", body: JSON.stringify({ nome, dataEvento, participantes }) }),
+  ativarTurma: (id) => chamar(`/admin/turmas/${id}/ativar`, { method: "POST" }),
   encerrarTurma: (id) => chamar(`/admin/turmas/${id}/encerrar`, { method: "POST" }),
 
   // quiz ao vivo (condução da prova)
