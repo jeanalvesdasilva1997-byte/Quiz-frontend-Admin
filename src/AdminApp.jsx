@@ -692,7 +692,17 @@ function TelaQuizAoVivo({ avisar }) {
 
             {dados.quizEstado === "fase1_concluida" && (
               <>
-                <div style={{ marginBottom: 16 }}>A Fase 1 terminou — o pódio 1 já está disponível para os participantes. Libere a Fase 2 depois que o tutor concluir a apresentação do conteúdo.</div>
+                <div style={{ marginBottom: 16 }}>
+                  A Fase 1 terminou. {dados.podio1Liberado
+                    ? "O pódio da Fase 1 já foi liberado para os participantes."
+                    : "Os participantes veem só a pontuação individual até você liberar o pódio."}
+                  {" "}Libere a Fase 2 depois que o tutor concluir a apresentação do conteúdo.
+                </div>
+                {!dados.podio1Liberado && (
+                  <button className="btn-ghost" style={{ marginRight: 10 }} disabled={processando} onClick={() => executar(api.quizLiberarPodio1)}>
+                    {processando ? "Liberando..." : "Liberar pódio da Fase 1"}
+                  </button>
+                )}
                 <button className="btn" disabled={processando} onClick={() => executar(api.quizLiberarFase2)}>
                   {processando ? "Liberando..." : "Liberar Fase 2"}
                 </button>
@@ -700,7 +710,18 @@ function TelaQuizAoVivo({ avisar }) {
             )}
 
             {dados.quizEstado === "fase2_concluida" && (
-              <div>A Fase 2 terminou — o pódio final (Fase 1 + Fase 2) já está disponível para os participantes.</div>
+              <>
+                <div style={{ marginBottom: 16 }}>
+                  A Fase 2 terminou. {dados.podio2Liberado
+                    ? "O pódio final já foi liberado para os participantes."
+                    : "Os participantes veem só a pontuação individual até você liberar o pódio final."}
+                </div>
+                {!dados.podio2Liberado && (
+                  <button className="btn" disabled={processando} onClick={() => executar(api.quizLiberarPodio2)}>
+                    {processando ? "Liberando..." : "Liberar pódio final"}
+                  </button>
+                )}
+              </>
             )}
           </div>
         </>

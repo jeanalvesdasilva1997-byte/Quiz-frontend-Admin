@@ -40,6 +40,8 @@ export const api = {
   quizIniciarFase1: (turmaId) => chamar(`/admin/turmas/${turmaId}/quiz/iniciar-fase1`, { method: "POST" }),
   quizProximaPergunta: (turmaId) => chamar(`/admin/turmas/${turmaId}/quiz/proxima`, { method: "POST" }),
   quizLiberarFase2: (turmaId) => chamar(`/admin/turmas/${turmaId}/quiz/liberar-fase2`, { method: "POST" }),
+  quizLiberarPodio1: (turmaId) => chamar(`/admin/turmas/${turmaId}/quiz/liberar-podio1`, { method: "POST" }),
+  quizLiberarPodio2: (turmaId) => chamar(`/admin/turmas/${turmaId}/quiz/liberar-podio2`, { method: "POST" }),
 
   // cadastro no dia / liberação manual
   cadastroNoDia: (turmaId, nome, email, empresa, cnpj) =>
