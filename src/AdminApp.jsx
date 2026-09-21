@@ -130,7 +130,7 @@ export default function AdminApp() {
     return (
       <div className="app-shell">
         <style>{CSS}</style>
-        <div className="topbar"><div className="brand"><img className="mark" src={logoHabitatCebrace} alt="Habitat by Cebrace" /><div className="name serif">Conversas de Conforto Habitat by Cebrace</div></div></div>
+        <div className="topbar"><div className="brand"><img className="mark" src={logoHabitatCebrace} alt="Habitat by Cebrace" /></div></div>
         <div className="login-wrap">
           <div className="kicker kicker-login">Painel administrativo</div>
           <h1 className="login-title serif">Gerenciamento de Usuários do Treinamento</h1>
@@ -190,7 +190,7 @@ export default function AdminApp() {
     <div className="app-shell">
       <style>{CSS}</style>
       <div className="topbar">
-        <div className="brand"><img className="mark" src={logoHabitatCebrace} alt="Habitat by Cebrace" /><div className="name serif">Conversas de Conforto Habitat by Cebrace</div></div>
+        <div className="brand"><img className="mark" src={logoHabitatCebrace} alt="Habitat by Cebrace" /></div>
         <div style={{ color: "var(--text-dim)", fontSize: 13 }}>{admin.nome} · {admin.papel === "owner" ? "Owner" : "Operador"}</div>
       </div>
       <div className="nav">
@@ -235,7 +235,7 @@ function TelaEsqueciSenha({ voltar }) {
   return (
     <div className="app-shell">
       <style>{CSS}</style>
-      <div className="topbar"><div className="brand"><img className="mark" src={logoHabitatCebrace} alt="Habitat by Cebrace" /><div className="name serif">Conversas de Conforto Habitat by Cebrace</div></div></div>
+      <div className="topbar"><div className="brand"><img className="mark" src={logoHabitatCebrace} alt="Habitat by Cebrace" /></div></div>
       <div className="login-wrap">
         <div className="kicker kicker-login">Esqueci minha senha</div>
         <h1 className="login-title serif">Redefinir senha de acesso</h1>
@@ -292,7 +292,7 @@ function TelaRedefinirSenha({ email, token, aoConcluir }) {
   return (
     <div className="app-shell">
       <style>{CSS}</style>
-      <div className="topbar"><div className="brand"><img className="mark" src={logoHabitatCebrace} alt="Habitat by Cebrace" /><div className="name serif">Conversas de Conforto Habitat by Cebrace</div></div></div>
+      <div className="topbar"><div className="brand"><img className="mark" src={logoHabitatCebrace} alt="Habitat by Cebrace" /></div></div>
       <div className="login-wrap">
         <div className="kicker kicker-login">Redefinir senha</div>
         <h1 className="login-title serif">Defina uma nova senha</h1>
@@ -1003,7 +1003,7 @@ function TelaRelatorio({ admin, avisar }) {
             <div className="statcard"><div className="v">{relatorio.concluiram}</div><div className="l">Concluíram</div></div>
             <div className="statcard"><div className="v">{relatorio.taxa}%</div><div className="l">Taxa de conclusão</div></div>
           </div>
-          <div className="h2">A exportação inclui todos os {relatorio.total} participantes (nome, e-mail, empresa, status, ranking, pontuação) — a tabela abaixo mostra só o pódio, como prévia. O XLSX vem formatado, com cores e destaque do pódio.</div>
+          <div className="h2">A exportação inclui todos os {relatorio.total} participantes (nome, e-mail, empresa, status, ranking, pontuação, permissão de contato) — a tabela abaixo mostra só o pódio, como prévia. O XLSX vem formatado, com cores e destaque do pódio.</div>
           <table className="tbl">
             <thead><tr><th>#</th><th>Nome</th><th>Empresa</th><th>Fase 1</th><th>Fase 2</th><th>Streak</th></tr></thead>
             <tbody>
