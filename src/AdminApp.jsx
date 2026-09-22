@@ -666,9 +666,13 @@ function TelaQuizAoVivo({ avisar }) {
             <div className="panel-title">Estado do quiz</div>
             {dados.quizEstado === "aguardando" && (
               <>
-                <div style={{ marginBottom: 16 }}>A turma ainda não começou a Fase 1. Inicie quando o tutor estiver pronto para conduzir a primeira pergunta.</div>
+                <div style={{ marginBottom: 16 }}>
+                  {dados.fase === 2
+                    ? "A turma ainda não começou a Fase 2. Inicie quando estiver pronto para conduzir a primeira pergunta."
+                    : "A turma ainda não começou a Fase 1. Inicie quando o tutor estiver pronto para conduzir a primeira pergunta."}
+                </div>
                 <button className="btn" disabled={processando} onClick={() => executar(api.quizIniciarFase1)}>
-                  {processando ? "Iniciando..." : "Iniciar Fase 1"}
+                  {processando ? "Iniciando..." : dados.fase === 2 ? "Iniciar Fase 2" : "Iniciar Fase 1"}
                 </button>
               </>
             )}
