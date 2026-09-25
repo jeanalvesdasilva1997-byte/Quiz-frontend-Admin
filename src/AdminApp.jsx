@@ -653,28 +653,7 @@ function TelaQuizAoVivo({ avisar }) {
       </div>
       <div className="h2" style={{ marginTop: -12 }}>Somente turmas com status Ativa aparecem nesta lista.</div>
 
-      {!dados ? <div style={{ color: "var(--text-faint)" }}>Carregando...</div> : dados.modoAutoPaced ? (
-        <>
-          <div className="statgrid">
-            <div className="statcard"><div className="v">{dados.totalParticipantes}</div><div className="l">Participantes</div></div>
-            <div className="statcard"><div className="v">{dados.emAndamento}</div><div className="l">Em andamento</div></div>
-            <div className="statcard"><div className="v">{dados.concluidos}</div><div className="l">Concluíram</div></div>
-            <div className="statcard"><div className="v">{new Date(dados.prazo).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}</div><div className="l">Prazo</div></div>
-          </div>
-          <div className="panel">
-            <div className="panel-title">Fase 2 — cada participante no próprio ritmo</div>
-            <div style={{ marginBottom: 16 }}>
-              Sem condução manual nessa fase — cada participante recebe as perguntas sozinho, na hora que quiser, até o prazo acima.
-              {" "}{dados.podio2Liberado ? "O pódio final já foi liberado para os participantes." : "Libere o pódio final quando quiser encerrar a visualização (ex: depois do prazo)."}
-            </div>
-            {!dados.podio2Liberado && (
-              <button className="btn" disabled={processando} onClick={() => executar(api.quizLiberarPodio2)}>
-                {processando ? "Liberando..." : "Liberar pódio final"}
-              </button>
-            )}
-          </div>
-        </>
-      ) : (
+      {!dados ? <div style={{ color: "var(--text-faint)" }}>Carregando...</div> : (
         <>
           <div className="statgrid">
             <div className="statcard"><div className="v">{dados.fase === 0 ? "—" : dados.fase}</div><div className="l">Fase atual</div></div>
