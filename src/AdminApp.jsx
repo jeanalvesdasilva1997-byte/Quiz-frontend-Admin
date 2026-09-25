@@ -760,7 +760,7 @@ function TelaCadastroNoDia({ avisar }) {
     if (!turmaId) { setErro("Selecione a turma."); return; }
     try {
       await api.cadastroNoDia(turmaId, nome, email, empresa, cnpj);
-      avisar(`${nome} adicionado. Já pode fazer login com esse e-mail.`);
+      avisar(`${nome} adicionado. Já pode entrar com nome e empresa.`);
       setNome(""); setEmail(""); setEmpresa(""); setCnpj("");
     } catch (err) {
       setErro(err.message);
@@ -780,13 +780,13 @@ function TelaCadastroNoDia({ avisar }) {
             </select>
           </div>
           <div className="field"><label>Nome</label><input value={nome} onChange={(e) => setNome(e.target.value)} /></div>
-          <div className="field"><label>E-mail</label><input value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+          <div className="field"><label>E-mail (opcional)</label><input value={email} onChange={(e) => setEmail(e.target.value)} /></div>
         </div>
         <div className="fieldrow">
           <div className="field"><label>Empresa</label><input value={empresa} onChange={(e) => setEmpresa(e.target.value)} /></div>
           <div className="field"><label>CNPJ (se houver)</label><input value={cnpj} onChange={(e) => setCnpj(e.target.value)} placeholder="00.000.000/0000-00" /></div>
         </div>
-        <button className="btn" type="submit">Adicionar e enviar código</button>
+        <button className="btn" type="submit">Adicionar participante</button>
         {erro && <div className="err">{erro}</div>}
       </form>
     </div>
