@@ -355,7 +355,7 @@ function TelaTurmas({ avisar }) {
   const turmasFiltradas = filtro === "todas" ? turmas : turmas.filter((t) => t.status === filtro);
 
   function handleAdicionarParticipante() {
-    if (!campoNome.trim() || !campoEmail.trim()) { avisar("Informe nome e e-mail do participante."); return; }
+    if (!campoNome.trim()) { avisar("Informe o nome do participante."); return; }
     setParticipantes([...participantes, { nome: campoNome.trim(), email: campoEmail.trim(), empresa: campoEmpresa.trim(), cnpj: campoCnpj.trim() }]);
     setCampoNome(""); setCampoEmail(""); setCampoEmpresa(""); setCampoCnpj("");
   }
@@ -451,7 +451,7 @@ function TelaTurmas({ avisar }) {
         </div>
         <div className="fieldrow">
           <div className="field"><label>Nome</label><input value={campoNome} onChange={(e) => setCampoNome(e.target.value)} /></div>
-          <div className="field"><label>E-mail</label><input value={campoEmail} onChange={(e) => setCampoEmail(e.target.value)} /></div>
+          <div className="field"><label>E-mail (opcional)</label><input value={campoEmail} onChange={(e) => setCampoEmail(e.target.value)} /></div>
         </div>
         <div className="fieldrow">
           <div className="field"><label>Empresa</label><input value={campoEmpresa} onChange={(e) => setCampoEmpresa(e.target.value)} /></div>
