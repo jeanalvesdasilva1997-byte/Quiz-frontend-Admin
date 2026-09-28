@@ -1,35 +1,36 @@
 import React, { useState, useEffect } from "react";
 import { api } from "./api";
-import logoHabitatCebrace from "./assets/logo-habitat-cebrace.png";
+import neraJanela from "./assets/nera-janela.png";
 
 const CSS = `
   :root{
-    --dark:#FFFFFF; --card:#F7F6F3; --card2:#EFEDE7; --gold:#F5811E; --gold-dim:#F7973D;
-    --text:#1A1A1A; --text-dim:#6B6660; --text-faint:#8A8377; --red:#ED1450; --green:#7FA66B; --line:#E3E0D9;
+    --dark:#EEECDF; --card:#FFFFFF; --card2:#F4F2E8; --gold:#6B5F4E; --gold-dim:#AEA087;
+    --text:#111111; --text-dim:#555555; --text-faint:#8C7F6A; --red:#C0504D; --green:#3E8E43; --line:rgba(58,48,40,0.14);
   }
   *{ box-sizing:border-box; }
   html,body,#root{ margin:0; padding:0; height:100%; background:var(--dark); }
-  .app-shell{ font-family:Arial,Helvetica,sans-serif; color:var(--text); min-height:100vh; }
-  .serif{ font-family:Arial,Helvetica,sans-serif; }
+  .app-shell{ font-family:'Hanken Grotesk',system-ui,'Helvetica Neue',Arial,sans-serif; color:var(--text); min-height:100vh; }
+  .serif{ font-family:'Cormorant',Cambria,Georgia,serif; font-weight:600; }
   .topbar{ display:flex; justify-content:space-between; align-items:center; padding:22px 48px; border-bottom:1px solid var(--line); }
   .brand{ display:flex; align-items:center; gap:12px; }
-  .brand .mark{ height:34px; width:auto; display:block; }
-  .brand .name{ font-size:15px; letter-spacing:0.02em; font-weight:700; color:var(--gold); }
+  .brand .mark{ height:30px; width:auto; display:block; }
+  .brand .name{ font-size:24px; letter-spacing:0.04em; font-weight:600; color:var(--text); }
   .login-wrap{ display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:80vh; padding:60px; text-align:center; }
   .kicker{ font-size:13px; letter-spacing:0.16em; text-transform:uppercase; color:var(--gold); margin-bottom:18px; }
   .kicker.kicker-login{ font-size:16px; letter-spacing:0.02em; text-transform:none; }
-  .login-title{ font-size:36px; font-weight:700; margin:0 0 16px; max-width:720px; line-height:1.25; }
+  .login-title{ font-size:50px; font-weight:500; margin:0 0 16px; max-width:720px; line-height:1.25; }
   .login-card{ width:420px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:36px; text-align:left; }
   .flabel{ font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-dim); margin-bottom:8px; display:block; }
-  .finput{ width:100%; background:#F0EEE8; border:1px solid var(--line); border-radius:6px; padding:14px 15px; color:var(--text); font-size:15px; margin-bottom:18px; font-family:inherit; }
-  .fbtn{ width:100%; background:var(--gold); color:#1A1A1A; border:none; border-radius:6px; padding:15px; font-weight:700; font-size:15px; cursor:pointer; }
+  .finput{ width:100%; background:var(--card2); border:1px solid var(--line); border-radius:6px; padding:14px 15px; color:var(--text); font-size:15px; margin-bottom:18px; font-family:inherit; }
+  .fbtn{ width:100%; background:var(--gold); color:#FBFAF4; border:none; border-radius:4px; padding:15px; font-weight:700; font-size:13.5px; text-transform:uppercase; letter-spacing:0.12em; cursor:pointer; font-family:inherit; }
+  .fbtn:hover:not(:disabled), .btn:hover:not(:disabled){ background:#3A3028; }
   .fbtn:disabled{ opacity:0.5; cursor:not-allowed; }
   .fnote{ margin-top:18px; padding-top:16px; border-top:1px solid var(--line); font-size:12.5px; color:var(--text-faint); line-height:1.6; }
   .err{ color:var(--red); font-size:13px; margin-top:10px; }
   .ok-msg{ color:var(--green); font-size:13px; margin-top:10px; }
   .nav{ display:flex; gap:4px; padding:14px 40px; border-bottom:1px solid var(--line); flex-wrap:wrap; }
-  .navbtn{ font-size:13.5px; padding:11px 18px; border-radius:6px; color:var(--text-dim); background:transparent; border:none; cursor:pointer; }
-  .navbtn.active{ background:rgba(245,129,30,0.12); color:var(--gold); font-weight:700; }
+  .navbtn{ font-size:13.5px; padding:11px 18px; border-radius:6px; color:var(--text-dim); background:transparent; border:none; cursor:pointer; font-family:inherit; }
+  .navbtn.active{ background:rgba(107,95,78,0.12); color:var(--gold); font-weight:700; }
   .content{ padding:36px 48px; }
   .h1{ font-size:24px; font-weight:700; margin:0 0 6px; }
   .h2{ font-size:14px; color:var(--text-dim); margin:0 0 20px; }
@@ -39,25 +40,25 @@ const CSS = `
   table.tbl td{ padding:15px 14px; border-bottom:1px solid var(--line); font-size:14px; }
   .pill{ font-size:11px; padding:5px 13px; border-radius:20px; text-transform:uppercase; letter-spacing:0.03em; display:inline-block; }
   .pill.ativa{ background:rgba(127,166,107,0.18); color:var(--green); }
-  .pill.agendada{ background:rgba(245,129,30,0.2); color:var(--gold); }
-  .pill.encerrada{ background:rgba(0,0,0,0.05); color:var(--text-faint); }
-  .pill.owner{ background:rgba(245,129,30,0.22); color:var(--gold); }
-  .pill.operador{ background:rgba(0,0,0,0.05); color:var(--text-dim); }
-  .pill.pendente{ background:rgba(245,129,30,0.15); color:var(--gold); }
-  .btn{ background:var(--gold); color:#1A1A1A; border:none; border-radius:6px; padding:12px 20px; font-weight:700; font-size:14px; cursor:pointer; }
+  .pill.agendada{ background:rgba(107,95,78,0.2); color:var(--gold); }
+  .pill.encerrada{ background:rgba(58,48,40,0.06); color:var(--text-faint); }
+  .pill.owner{ background:rgba(107,95,78,0.22); color:var(--gold); }
+  .pill.operador{ background:rgba(58,48,40,0.06); color:var(--text-dim); }
+  .pill.pendente{ background:rgba(107,95,78,0.15); color:var(--gold); }
+  .btn{ background:var(--gold); color:#FBFAF4; border:none; border-radius:4px; padding:12px 20px; font-weight:700; font-size:12.5px; text-transform:uppercase; letter-spacing:0.1em; cursor:pointer; font-family:inherit; }
   .btn:disabled{ opacity:0.5; cursor:not-allowed; }
-  .btn-ghost{ background:transparent; border:1px solid var(--line); color:var(--text-dim); border-radius:6px; padding:11px 18px; font-size:13.5px; font-weight:700; cursor:pointer; }
+  .btn-ghost{ background:transparent; border:1px solid var(--line); color:var(--text-dim); border-radius:6px; padding:11px 18px; font-size:13.5px; font-weight:700; cursor:pointer; font-family:inherit; }
   .btn-owner{ background:transparent; border:1px solid var(--gold); color:var(--gold); border-radius:6px; padding:11px 18px; font-size:13.5px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:10px; }
   .filterbar{ display:flex; gap:8px; margin-bottom:22px; }
-  .filterchip{ padding:9px 18px; border-radius:20px; font-size:13px; border:1px solid var(--line); color:var(--text-dim); background:transparent; cursor:pointer; }
-  .filterchip.active{ background:var(--gold); color:#1A1A1A; border-color:var(--gold); font-weight:700; }
+  .filterchip{ padding:9px 18px; border-radius:20px; font-size:13px; border:1px solid var(--line); color:var(--text-dim); background:transparent; cursor:pointer; font-family:inherit; }
+  .filterchip.active{ background:var(--gold); color:#FBFAF4; border-color:var(--gold); font-weight:700; }
   .panel{ background:var(--card); border:1px solid var(--line); border-radius:10px; padding:24px 26px; margin-top:22px; }
   .panel.solid{ border-style:solid; }
   .panel-title{ font-size:12px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-faint); margin-bottom:14px; }
   .fieldrow{ display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px; }
   .field{ flex:1; min-width:180px; }
   .field label{ display:block; font-size:11px; color:var(--text-dim); margin-bottom:7px; text-transform:uppercase; letter-spacing:0.04em; }
-  .field input, .field select, .field textarea{ width:100%; background:#F0EEE8; border:1px solid var(--line); border-radius:6px; padding:11px 13px; color:var(--text); font-size:14px; box-sizing:border-box; font-family:inherit; }
+  .field input, .field select, .field textarea{ width:100%; background:var(--card2); border:1px solid var(--line); border-radius:6px; padding:11px 13px; color:var(--text); font-size:14px; box-sizing:border-box; font-family:inherit; }
   .owner-badge{ font-size:10.5px; color:var(--gold); border:1px solid var(--gold); border-radius:20px; padding:3px 11px; letter-spacing:0.03em; text-transform:uppercase; }
   .statgrid{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:20px; }
   .statcard{ flex:1; min-width:130px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 18px; }
@@ -66,9 +67,9 @@ const CSS = `
   .actionlink{ color:var(--gold); font-size:11.5px; cursor:pointer; }
   .actionlink.danger{ color:var(--red); }
   .toast{ position:fixed; bottom:20px; right:20px; background:var(--card2); border:1px solid var(--gold); color:var(--text); font-size:13px; padding:12px 18px; border-radius:8px; z-index:20; }
-  .btn-danger{ background:var(--red); color:#fff; border:none; border-radius:6px; padding:12px 20px; font-weight:700; font-size:14px; cursor:pointer; }
+  .btn-danger{ background:var(--red); color:#fff; border:none; border-radius:6px; padding:12px 20px; font-weight:700; font-size:14px; cursor:pointer; font-family:inherit; }
   .btn-danger:disabled{ opacity:0.5; cursor:not-allowed; }
-  .modal-backdrop{ position:fixed; inset:0; background:rgba(26,26,26,0.5); display:flex; align-items:center; justify-content:center; z-index:30; padding:20px; }
+  .modal-backdrop{ position:fixed; inset:0; background:rgba(10,10,10,0.46); display:flex; align-items:center; justify-content:center; z-index:30; padding:20px; }
   .modal-card{ width:460px; max-width:100%; background:var(--dark); border:1px solid var(--line); border-radius:10px; padding:28px; }
   .modal-title{ font-size:19px; font-weight:700; margin:0 0 6px; }
   .modal-sub{ font-size:13.5px; color:var(--text-dim); margin:0 0 18px; }
@@ -130,7 +131,7 @@ export default function AdminApp() {
     return (
       <div className="app-shell">
         <style>{CSS}</style>
-        <div className="topbar"><div className="brand"><img className="mark" src={logoHabitatCebrace} alt="Habitat by Cebrace" /></div></div>
+        <div className="topbar"><div className="brand"><img className="mark" src={neraJanela} alt="" /><div className="name serif">NERA</div></div></div>
         <div className="login-wrap">
           <div className="kicker kicker-login">Painel administrativo</div>
           <h1 className="login-title serif">Gerenciamento de Usuários do Treinamento</h1>
@@ -190,7 +191,7 @@ export default function AdminApp() {
     <div className="app-shell">
       <style>{CSS}</style>
       <div className="topbar">
-        <div className="brand"><img className="mark" src={logoHabitatCebrace} alt="Habitat by Cebrace" /></div>
+        <div className="brand"><img className="mark" src={neraJanela} alt="" /><div className="name serif">NERA</div></div>
         <div style={{ color: "var(--text-dim)", fontSize: 13 }}>{admin.nome} · {admin.papel === "owner" ? "Owner" : "Operador"}</div>
       </div>
       <div className="nav">
@@ -235,7 +236,7 @@ function TelaEsqueciSenha({ voltar }) {
   return (
     <div className="app-shell">
       <style>{CSS}</style>
-      <div className="topbar"><div className="brand"><img className="mark" src={logoHabitatCebrace} alt="Habitat by Cebrace" /></div></div>
+      <div className="topbar"><div className="brand"><img className="mark" src={neraJanela} alt="" /><div className="name serif">NERA</div></div></div>
       <div className="login-wrap">
         <div className="kicker kicker-login">Esqueci minha senha</div>
         <h1 className="login-title serif">Redefinir senha de acesso</h1>
@@ -292,7 +293,7 @@ function TelaRedefinirSenha({ email, token, aoConcluir }) {
   return (
     <div className="app-shell">
       <style>{CSS}</style>
-      <div className="topbar"><div className="brand"><img className="mark" src={logoHabitatCebrace} alt="Habitat by Cebrace" /></div></div>
+      <div className="topbar"><div className="brand"><img className="mark" src={neraJanela} alt="" /><div className="name serif">NERA</div></div></div>
       <div className="login-wrap">
         <div className="kicker kicker-login">Redefinir senha</div>
         <h1 className="login-title serif">Defina uma nova senha</h1>
@@ -481,7 +482,7 @@ function TelaTurmas({ avisar }) {
               <thead><tr><th>Nome</th><th>E-mail</th><th>Empresa</th><th>Status</th></tr></thead>
               <tbody>
                 {conferencia.validos.map((v, i) => <tr key={"v" + i}><td>{v.nome}</td><td>{v.email}</td><td>{v.empresa}</td><td><span className="pill ativa">válido</span></td></tr>)}
-                {conferencia.erros.map((er, i) => <tr key={"e" + i}><td>{er.nome}</td><td>{er.email}</td><td>—</td><td><span className="pill" style={{ background: "rgba(237,20,80,0.15)", color: "var(--red)" }}>{er.motivo}</span></td></tr>)}
+                {conferencia.erros.map((er, i) => <tr key={"e" + i}><td>{er.nome}</td><td>{er.email}</td><td>—</td><td><span className="pill" style={{ background: "rgba(192,80,77,0.15)", color: "var(--red)" }}>{er.motivo}</span></td></tr>)}
               </tbody>
             </table>
             <button className="btn" style={{ marginTop: 10 }} disabled={conferencia.validos.length === 0} onClick={handleConfirmar}>
@@ -1007,7 +1008,7 @@ function TelaRelatorio({ admin, avisar }) {
             <div className="statcard"><div className="v">{relatorio.concluiram}</div><div className="l">Concluíram</div></div>
             <div className="statcard"><div className="v">{relatorio.taxa}%</div><div className="l">Taxa de conclusão</div></div>
           </div>
-          <div className="h2">A exportação inclui todos os {relatorio.total} participantes (nome, e-mail, empresa, status, ranking, pontuação, permissão de contato) — a tabela abaixo mostra só o pódio, como prévia. O XLSX vem formatado, com cores e destaque do pódio.</div>
+          <div className="h2">A exportação inclui todos os {relatorio.total} participantes (nome, e-mail, empresa, status, ranking, pontuação). A tabela abaixo mostra só o pódio, como prévia. O XLSX vem formatado, com cores e destaque do pódio.</div>
           <table className="tbl">
             <thead><tr><th>#</th><th>Nome</th><th>Empresa</th><th>Fase 1</th><th>Fase 2</th><th>Streak</th></tr></thead>
             <tbody>
